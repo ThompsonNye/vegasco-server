@@ -13,10 +13,10 @@ public static class ValidatorExtensions
 	/// <param name="validators"></param>
 	/// <param name="instance"></param>
 	/// <returns>The failed validation results.</returns>
-	public static async Task<List<ValidationResult>> ValidateAllAsync<T>(this IEnumerable<IValidator<T>> validators, T instance)
+	public static async Task<List<ValidationResult>> ValidateAllAsync<T>(this IEnumerable<IValidator<T>> validators, T instance, CancellationToken cancellationToken = default)
 	{
 		var validationTasks = validators
-			.Select(validator => validator.ValidateAsync(instance))
+			.Select(validator => validator.ValidateAsync(instance, cancellationToken))
 			.ToList();
 
 		await Task.WhenAll(validationTasks);
@@ -58,37 +58,5 @@ public static class ValidatorExtensions
 			return new FluentValidationOptions<T>(builder.Name, validators);
 		});
 		return builder;
-	}
-}
-
-internal class FluentValidationOptions<TOptions> : IValidateOptions<TOptions>
-	where TOptions : class
-{
-	private readonly IEnumerable<IValidator<TOptions>> _validators;
-
-	public string? Name { get; set; }
-
-	public FluentValidationOptions(string? name, IEnumerable<IValidator<TOptions>> validators)
-	{
-		Name = name;
-		_validators = validators;
-	}
-
-	public ValidateOptionsResult Validate(string? name, TOptions options)
-	{
-		if (name is not null && name != Name)
-		{
-			return ValidateOptionsResult.Skip;
-		}
-
-		ArgumentNullException.ThrowIfNull(options);
-
-		var failedValidations = _validators.ValidateAllAsync(options).Result;
-		if (failedValidations.Count == 0)
-		{
-			return ValidateOptionsResult.Success;
-		}
-
-		return ValidateOptionsResult.Fail(failedValidations.SelectMany(x => x.Errors.Select(x => x.ErrorMessage)));
 	}
 }

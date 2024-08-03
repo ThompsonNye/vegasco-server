@@ -34,6 +34,10 @@ public static class EndpointExtensions
 			.WithApiVersionSet(apiVersionSet)
 			.RequireAuthorization(Constants.Authorization.RequireAuthenticatedUserPolicy);
 
+		GetCar.MapEndpoint(versionedApis);
+		GetCars.MapEndpoint(versionedApis);
 		CreateCar.MapEndpoint(versionedApis);
+		UpdateCar.MapEndpoint(versionedApis);
+		DeleteCar.MapEndpoint(versionedApis);
 	}
 }

@@ -1,12 +1,14 @@
 ﻿using Asp.Versioning;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Trace;
 using System.Diagnostics;
 using Vegasco.WebApi.Authentication;
 using Vegasco.WebApi.Endpoints;
 using Vegasco.WebApi.Endpoints.OpenApi;
+using Vegasco.WebApi.Persistence;
 
 namespace Vegasco.WebApi.Common;
 
@@ -16,14 +18,15 @@ public static class DependencyInjectionExtensions
 	///     Adds all the WebApi related services to the Dependency Injection container.
 	/// </summary>
 	/// <param name="services"></param>
-	public static void AddWebApiServices(this IServiceCollection services)
+	public static void AddWebApiServices(this IServiceCollection services, IConfiguration configuration)
 	{
 		services
 			.AddMiscellaneousServices()
 			.AddOpenApi()
 			.AddApiVersioning()
 			.AddOtel()
-			.AddAuthenticationAndAuthorization();
+			.AddAuthenticationAndAuthorization()
+			.AddDbContext(configuration);
 	}
 
 	private static IServiceCollection AddMiscellaneousServices(this IServiceCollection services)
@@ -38,6 +41,8 @@ public static class DependencyInjectionExtensions
 		services.AddHealthChecks();
 		services.AddEndpointsFromAssemblyContaining<IWebApiMarker>();
 
+		services.AddHttpContextAccessor();
+
 		return services;
 	}
 
@@ -46,7 +51,27 @@ public static class DependencyInjectionExtensions
 		services.ConfigureOptions<ConfigureSwaggerGenOptions>();
 
 		services.AddEndpointsApiExplorer();
-		services.AddSwaggerGen();
+		services.AddSwaggerGen(o =>
+		{
+			o.CustomSchemaIds(type =>
+			{
+				if (string.IsNullOrEmpty(type.FullName))
+				{
+					return type.Name;
+				}
+
+				var fullClassName = type.FullName;
+
+				if (!string.IsNullOrEmpty(type.Namespace))
+				{
+					fullClassName = fullClassName
+						.Replace(type.Namespace, "")
+						.TrimStart('.');
+				}
+
+				return fullClassName;
+			});
+		});
 
 		return services;
 	}
@@ -118,6 +143,21 @@ public static class DependencyInjectionExtensions
 			.AddPolicy(Constants.Authorization.RequireAuthenticatedUserPolicy, p => p
 				.RequireAuthenticatedUser()
 				.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme));
+
+		services.AddScoped<UserAccessor>();
+
+		return services;
+	}
+
+	private static IServiceCollection AddDbContext(this IServiceCollection services, IConfiguration configuration)
+	{
+		services.AddDbContext<ApplicationDbContext>(o =>
+		{
+			o.UseNpgsql(configuration.GetConnectionString("Database"), c =>
+			{
+				c.EnableRetryOnFailure();
+			});
+		});
 
 		return services;
 	}

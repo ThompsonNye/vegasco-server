@@ -45,9 +45,8 @@ public sealed class WebAppFactory : WebApplicationFactory<IWebApiMarker>, IAsync
 		IEnumerable<KeyValuePair<string, string?>> customConfig =
 		[
 			new KeyValuePair<string, string?>("ConnectionStrings:Database", _database.GetConnectionString()),
-			new KeyValuePair<string, string?>("JWT:Authority", "https://localhost"),
-			new KeyValuePair<string, string?>("JWT:Audience", "https://localhost"),
-			new KeyValuePair<string, string?>("JWT:Issuer", "https://localhost"),
+			new KeyValuePair<string, string?>("JWT:ValidAudience", "https://localhost"),
+			new KeyValuePair<string, string?>("JWT:MetadataUrl", "https://localhost"),
 			new KeyValuePair<string, string?>("JWT:NameClaimType", null),
 		];
 

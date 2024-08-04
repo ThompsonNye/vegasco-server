@@ -6,11 +6,9 @@ public class JwtOptions
 {
 	public const string SectionName = "JWT";
 
-	public string Audience { get; set; } = "";
+	public string ValidAudience { get; set; } = "";
 
-	public string Authority { get; set; } = "";
-
-	public string Issuer { get; set; } = "";
+	public string MetadataUrl { get; set; } = "";
 
 	public string? NameClaimType { get; set; }
 }
@@ -19,13 +17,10 @@ public class JwtOptionsValidator : AbstractValidator<JwtOptions>
 {
 	public JwtOptionsValidator()
 	{
-		RuleFor(x => x.Audience)
+		RuleFor(x => x.ValidAudience)
 			.NotEmpty();
 
-		RuleFor(x => x.Authority)
-			.NotEmpty();
-
-		RuleFor(x => x.Issuer)
+		RuleFor(x => x.MetadataUrl)
 			.NotEmpty();
 	}
 }

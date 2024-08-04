@@ -125,13 +125,10 @@ public static class DependencyInjectionExtensions
 		services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, o =>
 			{
-				o.Authority = jwtOptions.Value.Authority;
+				o.MetadataAddress = jwtOptions.Value.MetadataUrl;
 
-				o.TokenValidationParameters.ValidAudience = jwtOptions.Value.Audience;
+				o.TokenValidationParameters.ValidAudience = jwtOptions.Value.ValidAudience;
 				o.TokenValidationParameters.ValidateAudience = true;
-
-				o.TokenValidationParameters.ValidIssuer = jwtOptions.Value.Issuer;
-				o.TokenValidationParameters.ValidateIssuer = true;
 
 				if (!string.IsNullOrWhiteSpace(jwtOptions.Value.NameClaimType))
 				{

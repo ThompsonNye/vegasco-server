@@ -14,7 +14,7 @@ public static class GetCars
 			.WithTags("Cars");
 	}
 
-	public static async Task<IResult> Endpoint(
+	private static async Task<IResult> Endpoint(
 		ApplicationDbContext dbContext,
 		CancellationToken cancellationToken)
 	{

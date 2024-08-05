@@ -45,7 +45,7 @@ services:
     ports:
       - 12345:8080
     volumes:
-      - ./test-realm.json:/opt/keycloak/data/import/realm.json:ro
+      - ./test-realm.json:/opt/keycloak/data/import/test-realm.json:ro
     depends_on:
       login-db:
         condition: service_healthy

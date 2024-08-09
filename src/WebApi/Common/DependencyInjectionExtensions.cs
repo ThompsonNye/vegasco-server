@@ -18,14 +18,16 @@ public static class DependencyInjectionExtensions
 	///     Adds all the WebApi related services to the Dependency Injection container.
 	/// </summary>
 	/// <param name="services"></param>
-	public static void AddWebApiServices(this IServiceCollection services, IConfiguration configuration)
+	/// <param name="configuration"></param>
+	/// <param name="environment"></param>
+	public static void AddWebApiServices(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
 	{
 		services
 			.AddMiscellaneousServices()
 			.AddOpenApi()
 			.AddApiVersioning()
 			.AddOtel()
-			.AddAuthenticationAndAuthorization()
+			.AddAuthenticationAndAuthorization(environment)
 			.AddDbContext(configuration);
 	}
 
@@ -113,7 +115,7 @@ public static class DependencyInjectionExtensions
 		return services;
 	}
 
-	private static IServiceCollection AddAuthenticationAndAuthorization(this IServiceCollection services)
+	private static IServiceCollection AddAuthenticationAndAuthorization(this IServiceCollection services, IHostEnvironment environment)
 	{
 		services.AddOptions<JwtOptions>()
 			.BindConfiguration(JwtOptions.SectionName)
@@ -134,6 +136,8 @@ public static class DependencyInjectionExtensions
 				{
 					o.TokenValidationParameters.NameClaimType = jwtOptions.Value.NameClaimType;
 				}
+
+				o.RequireHttpsMetadata = !jwtOptions.Value.AllowHttpMetadataUrl && !environment.IsDevelopment();
 			});
 
 		services.AddAuthorizationBuilder()

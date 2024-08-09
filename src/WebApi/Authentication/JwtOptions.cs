@@ -11,6 +11,8 @@ public class JwtOptions
 	public string MetadataUrl { get; set; } = "";
 
 	public string? NameClaimType { get; set; }
+
+	public bool AllowHttpMetadataUrl { get; set; }
 }
 
 public class JwtOptionsValidator : AbstractValidator<JwtOptions>

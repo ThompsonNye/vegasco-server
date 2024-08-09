@@ -3,9 +3,12 @@ services:
     build: ../../src/WebApi
     environment:
       Vegasco_ConnectionStrings__Default: "Host=db;Port=5432;Database=postgres;Username=postgres;Password=postgres"
-      Vegasco_JWT__Issuer: 
-      Vegasco_JWT__Authority: 
-      Vegasco_JWT__Audience: 
+      Vegasco_JWT__MetadataUrl: http://login:8080/realms/development/.well-known/openid-configuration
+      Vegasco_JWT__ValidAudience: vegasco
+      Vegasco_JWT__NameClaimType: name
+      Vegasco_JWT__AllowHttpMetadataUrl: "true"
+    ports:
+      - "8080"
     depends_on:
       db:
         condition: service_healthy
@@ -38,12 +41,12 @@ services:
       KC_DB_PASSWORD: keycloak
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin1!
-      KC_HOSTNAME: http://localhost:12345/
+      KC_HOSTNAME_STRICT: false
       KC_HEALTH_ENABLED: true
       KC_METRICS_ENABLED: true
       KC_HTTP_ENABLED: true
     ports:
-      - 12345:8080
+      - "8080"
     volumes:
       - ./test-realm.json:/opt/keycloak/data/import/test-realm.json:ro
     depends_on:

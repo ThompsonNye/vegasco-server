@@ -11,7 +11,7 @@ internal static class StartupExtensions
 	{
 		builder.Configuration.AddEnvironmentVariables("Vegasco_");
 
-		builder.Services.AddWebApiServices(builder.Configuration);
+		builder.Services.AddWebApiServices(builder.Configuration, builder.Environment);
 
 		WebApplication app = builder.Build();
 		return app;
